@@ -12,8 +12,8 @@ list = [0] * 11  # Initialize a list of 11 elements to 0
 for i in range(n):
    list[(randint(1, 6) + randint(1, 6)) - 2] += 1
 
-print("Total    Probability \n---------------------")  # Title for probability table
+print("Total    Probability \n--------------------")  # Title for probability table
 # Loop 11 times (size of list) and print the dice value and the probability of the role for the simulation
 for i in range(11):
-    rounded = "%.2f" % float((list[i] / n) * (100))  # Ratio is calculated, converted to a percentage, casted to float, then rounded
+    rounded = "%.2f" % float((list[i] / n) * (100))  # Ratio is calculated, converted to a percentage, cast to float, then rounded
     print(i + 2, "        ", rounded, "%")

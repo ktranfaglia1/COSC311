@@ -1,7 +1,7 @@
 #  Kyle Tranfaglia
 #  COSC311 - Homework01 - Ex.3
 #  Last updated 02/06/24
-#  This program takes take a base length and draws an octogon of that length
+#  This program takes a base length and draws an octagon of that length
 
 # Function to make octagon
 def makeOctagon(length):
