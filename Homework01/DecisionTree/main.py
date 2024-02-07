@@ -3,7 +3,7 @@
 #  Last updated 02/06/24
 #  This program takes three inputs (outlook, humidity, and wind) and generates a decision tree model
 
-# Function that uses 
+# Function that determines if the user should play tennis and returns a flag denoting answer (0 - false, 1 - true)
 def playTennis(outlook, humidity, wind):
     status = 0  # Set status to false (default)
     # Check for a condition that endorces playing tennis and set status to 1 if condition is met ... nesting not necessary

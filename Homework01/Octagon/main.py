@@ -21,7 +21,7 @@ def makeOctagon(length):
 length = int(input("Enter a base length for an octagon: "))  # Get user input
 
 # Validate user input
-while (length <= 2):
+while (length < 2):
     print("Invalid input: Base length must be greater or equal to 2")
     length = int(input("Enter a base length for an octagon: "))
 
