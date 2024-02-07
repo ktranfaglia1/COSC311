@@ -6,7 +6,7 @@
 # Function that uses 
 def playTennis(outlook, humidity, wind):
     status = 0  # Set status to false (default)
-    # Check for a condition that endorces playing tennis and set status to 1 if condition is met
+    # Check for a condition that endorces playing tennis and set status to 1 if condition is met ... nesting not necessary
     if (outlook == "overcast"):
         status = 1
     elif ((outlook == "sunny") and (humidity == "normal")):
