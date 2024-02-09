@@ -1,0 +1,72 @@
+Four ways that AI and robotics are helping to transform other research fields
+
+From handling deep-sea organisms to improving climate forecasting, the technology can be transformative.
+
+By Michael Eisenstein
+https://www.nature.com/articles/d41586-022-03209-2
+
+Artificial intelligence (AI) is already proving a revolutionary tool for bioinformatics; the AlphaFold database set up by London-based company DeepMind, owned by Google, is allowing scientists to predict the structures of 200 million proteins across 1 million species. But other fields are benefiting too. Here, we describe the work of researchers pursuing cutting-edge AI and robotics techniques to better anticipate the planet’s changing climate, uncover the hidden history behind artworks, understand deep sea ecology and develop new materials.
+
+Marine biology with a soft touch
+It takes a tough organism to withstand the rigours of deep-sea living. But these resilient species are also often remarkably delicate, ranging from soft and squishy creatures such as jellyfish and sea cucumbers, to firm but fragile deep-sea fishes and corals. Their fragility makes studying these organisms a complex task.
+
+The rugged metal manipulators found on many undersea robots are more likely to harm such specimens than to retrieve them intact. But ‘soft robots’ based on flexible polymers are giving marine biologists such as David Gruber, of the City University of New York, a gentler alternative for interacting with these enigmatic denizens of the deep.
+
+Some approaches involve building the sample-handling arms on conventional autonomous vehicles with these softer elements, whereas others more closely mimic their subjects and are entirely composed of soft and flexible materials. The question, says Gruber, is whether this will allow scientists to take biopsy samples in the deep “and do things that we normally do in a controlled lab environment, inside a sphere of a submarine”.
+
+The answer seems to be a decisive yes. Over the past eight years, Gruber has been collaborating with Robert Wood, a roboticist at Harvard University in Cambridge, Massachusetts, to construct robots that can operate effectively in environments where divers fear to go, and a number of his other colleagues in the field have accomplished similar feats. In 2021, for example, Chinese researchers, led by roboticist Tiefeng Li at Zhejiang University, designed a robot that could navigate the gloomy depths of the Mariana Trench — nearly 11 kilometres below the surface of the Western Pacific Ocean.
+
+Early generations of these soft robots have been principally focused on the safe capture and handling of live marine organisms, but the next wave should be capable of conducting more extensive analyses without returning to land. Gruber describes progress in developing systems for performing mass spectrometry or sophisticated imaging methods underwater, and he and Wood have even developed a soft robot that can do genomic analysis of newly captured specimens.
+
+Cost is still very much an obstacle. Gruber notes that even smaller submersible systems can cost hundreds of thousands of dollars. But a soft robot design also confers a lot of flexibility. For example, Gruber’s colleagues have demonstrated that they can use 3D printers to create specialized manipulating and gripping components while working at sea, allowing them to quickly customize their robots for the jellyfish, corals or other creatures spotted during an expedition.
+
+Although this technology is not yet widely embraced, Gruber is enthusiastic about how soft robotics might transform marine biology by allowing researchers to quickly gain useful insights into new species rather than just fleeting snapshots from a submarine camera. “Most of these animals are so new that we know either little or nothing about them,” he says.
+
+Transforming climate forecasts
+Every three to seven years, the waters of the Pacific Ocean fluctuate between relatively warm and cool surface temperatures. Although only in the order of a few degrees, these shifts have profound effects on the global climate, with a strong influence on rainfall and storm activity in Asia, Oceania and the Americas.
+
+Knowledge of the timing of these shifts — known formally as the El Niño–Southern Oscillation, or ENSO — could help communities to prepare for droughts, severe hurricanes or other extreme weather events. Such predictions are difficult to make with great confidence, but in 2019, Yoo-Geun Ham’s team at Chonnam National University in Gwangju, South Korea, developed an algorithm, based on an AI technique known as deep learning, that could successfully forecast these oceanic warming and cooling events up to two years in advance. Indeed, their algorithm’s predictions have consistently anticipated ENSO patterns over the past three years. “So far, so good,” says Ham.
+
+AI is a new addition to the climate science toolbox, but has already proved adept at combing through observational data in order to spot meaningful patterns of atmospheric and oceanic activity. In some cases, the AI can produce projections that go well into the future, such as Ham’s work with ENSO, but the technology can also deliver immediately relevant insights. For example, a 2021 study from scientists at Google sister company, DeepMind, showcased a ‘nowcasting’ algorithm that applies deep learning to real-time radar data to accurately project precipitation patterns over the coming hours.
+
+Climate researchers are also using AI to overcome some of the shortcomings of conventional statistical or physics-based approaches to climatology. For example, deep-learning algorithms can be used to identify essential parameters for climate modelling that are impossible to quantify accurately based on current knowledge or direct observation, such as the mixing of oceanic waters or the regional movement of clouds. One can even apply AI to fill in gaps in historic climate data.
+
+Most work to date has focused on specific components or regional elements of the global climate, but bigger, planet-wide questions remain largely out of AI’s reach for now. Projections at this scale are typically derived from Earth system models — mathematical frameworks grounded in an understanding of key physical processes in the oceans, atmosphere and terrestrial ecosystems. Ham says this area “is the future for applying deep learning for climate forecasting and climate modelling”, although he notes that most of the preliminary work in this area has yet to be robustly evaluated or validated in terms of accuracy.
+
+Part of the problem is that current AI systems are generally working on patterns in the data, rather than a real understanding of physical phenomena. Added to that is the difficulty in retracing the process used by the algorithm to reach its conclusions. Ham says that his group has worked hard to overcome scepticism related to this issue in their work. “We applied a very strict validation method to prove that our deep-learning model is really something beyond the other state-of-the-art prediction systems,” he says. Ham believes that AI will ultimately transform the field of climate forecasting. “I think the future is pretty bright,” he says.
+
+Catalysing materials discovery
+Transition-metal elements, such as iron, copper and platinum, are widely used for chemical processing and synthesis in a variety of industries — in part because of their distinctive electronic structures, suitable for catalysis. Materials scientists have only scratched the surface of the vast universe of possible formulations, however, and many more compounds remain to be discovered that could deliver superior catalytic performance, lower cost or simpler production methods.
+
+Computational chemist Heather Kulik, at the Massachusetts Institute of Technology in Cambridge, is part of an ever-growing community of researchers who are using AI algorithms to dramatically accelerate the material discovery and design process. In one study published this year, her team used an approach called ‘active learning’ — in which the AI algorithm uses its own models to identify data that could lead to further improvements in performance — to uncover the structural and chemical features of transition-metal catalysts that can efficiently convert methane to methanol.
+
+“We searched through about 16 million candidate catalysts,” says Kulik, “and were able to come up with design principles in days to weeks that would have otherwise taken decades.” Such catalysts are important as they could facilitate efficient transformation of methane — a major component of fossil fuels and a greenhouse gas — into a more versatile and useful chemical building block.
+
+Kulik credits the field’s growth in part to a surge in development of open-source toolkits that make it easier for researchers to train AI on a wide range of physicochemical features to discover potential materials. There are also a number of publicly accessible repositories of both theoretical and experimentally derived chemical data that can be fed into these algorithms, although Kulik notes that access to high-quality data remains a pressing issue. “I don’t think there’s a consensus about what it takes to generate a high-quality data set,” she says, noting that her group generally relies entirely on internally generated data to train their algorithms. AI has its possible uses here too; machine-learning algorithms can be applied to published literature to directly harvest insights about the chemical features of different families of compounds via text mining.
+
+At present, these analyses are largely designed to identify materials that are optimized for one particular characteristic, such as stability under particular environmental conditions. But promising work is now under way in the area of ‘multi-objective optimization’, in which machine learning algorithms are used to home in on compounds and structures that simultaneously yield excellent performance across a variety of different parameters.
+
+Kulik is also enthusiastic about a nascent area of computational chemistry that uses algorithms to oversee key aspects of the AI modelling process itself. The idea is to eliminate the false starts and dead ends that can arise with a typical machine-learning-based experiment by training the computer to recognize poor-quality data, materials that are not realistic or other conditions that could produce a failure.
+
+For Kulik, this is not about taking the human expert out of the process, but rather allowing them to devote more time and energy to the analysis of high-quality computational results “so that PhD candidates don’t have to spend all this time doing tedious things”.
+
+Scratching the surface
+Even the greatest artists start with a rough draft. For masters such as Leonardo da Vinci, many of these early efforts are lost to history, but a combination of sophisticated imaging techniques and AI algorithms has made it possible to excavate preliminary sketches concealed under finished paintings.
+
+Working in collaboration with Imperial College London electrical engineer Pier Luigi Dragotti, Catherine Higgitt, principal scientist at the National Gallery in London, was able to detect traces of an angel and other figures hidden in da Vinci’s late-fifteenth-century work The Virgin of the Rocks. They first used X-ray fluorescence to detect elements associated with certain pigments throughout the painting, and then used AI to reconstruct the hidden patterns formed by those pigments.
+
+Non-invasive imaging is becoming a standard tool in the world of art restoration, but the volume of data generated can quickly become overwhelming. “We very rarely rely on a single technique,” says Higgitt. “We tend to be piecing together information, and so you might have a series of types of imaging data at different wavelengths.” This is where AI can come in handy: helping to integrate and interpret the complex data sets.
+
+These kinds of AI-assisted image analyses are now fairly common in disciplines such as biomedical imaging, but museum scientists generally lack the computational resources and the expertise to use these technologies themselves. Higgitt joined forces with a UK research initiative called ARTICT, which brought together experts from the art world with computational specialists from various disciplines.
+
+Today, AI is a regular component of Higgitt’s work at the National Gallery, which puts her team at the cutting edge relative to most other museums, although she acknowledges “it’s still very much baby steps”.
+
+A number of other groups are also demonstrating the insights that can be gained by applying algorithmic analysis to artworks. For example, researchers in Russia and Belgium have used neural networks for ‘virtual restoration’, digitally patching the cracks and filling in bits of missing and faded paint on degraded paintings. Another team, based at Case Western Reserve University in Cleveland, Ohio, has devised an algorithm that can help identify the artist responsible for a given work based on the physical brushstrokes — potentially even revealing forgeries.
+
+In these early days of using AI in her discipline, Higgitt is cautious about it giving too much credence. She points to the difficulties in checking how AI systems arrive at an answer, and it remains unclear how well an algorithm trained on one artwork will perform on others. She sees it as providing a “first pass” of the data to help pull out “trends or information that experts — chemists or conservators or curators — would come back and review”.
+
+As progress continues, Higgitt sees exciting opportunities for AI to transform how both curators, and the public, interact with art. This could potentially even include reconstructing aspects of an artwork’s “life story”, says Higgitt, giving viewers “a sense of not only where a piece might have been originally situated, but also what it might have looked like at different points in the past”.
+
+Nature 610, S6-S8 (2022)
+
+doi: https://doi.org/10.1038/d41586-022-03209-2
