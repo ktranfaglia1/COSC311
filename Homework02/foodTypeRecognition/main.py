@@ -9,15 +9,15 @@ is used to show the classification performance and a heatmap is used to show the
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sb
-import numpy as np
 
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import VotingClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report, accuracy_score
 from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 from sklearn.feature_selection import RFE
 from sklearn.pipeline import make_pipeline
@@ -68,6 +68,24 @@ def pipelineClassifier(attributeTrain, attributeTest, targetTrain):
 
     return pipeline.predict(attributeTest)  # Return the predictions for the test data
 
+# Voting Algorithm to fit the classifier to the training data and target labels and return the predictions for the test data
+# Algorithm uses all the other classifers and uses a weighted average of predicted probabilities for create a prediction
+def votingClassifier(attributeTrain, attributeTest, targetTrain):
+    # All Classifiers for voting
+    knn = KNeighborsClassifier(n_neighbors = 1)
+    mlp = MLPClassifier(hidden_layer_sizes = 100, activation = 'tanh', solver = 'adam', alpha = 1e-5, batch_size = 36, tol = 1e-6, learning_rate_init=0.01,
+                               learning_rate='constant', max_iter = 10000, random_state = 7)
+    rf = RandomForestClassifier(n_estimators = 315, criterion = 'gini', max_depth = 14, min_samples_split = 3,
+                                        min_samples_leaf = 3, max_features = 'sqrt', random_state = 7)
+    svc = SVC(kernel = 'rbf', C = 13, gamma = 'scale', probability = True, random_state = 7)
+    pipeline = make_pipeline(PolynomialFeatures(2), LogisticRegression(solver='liblinear', random_state = 7))
+
+    # Create a voting ensemble of the classifiers with soft voting. Weighted average of predicted probabilities
+    votingSystem = VotingClassifier(estimators=[('mlp', mlp), ('knn', knn), ('svc', svc), ('rf', rf), ('pipeline', pipeline)], voting='soft')
+    votingSystem.fit(attributeTrain, targetTrain)  # Fit the classifier to the training data and target labels
+
+    return votingSystem.predict(attributeTest)  # Return the predictions for the test data
+
 # Condense features by eliminating them based on importance
 def condenseFeatures(attributeTrain, targetTrain, numFeatures):
     estimator = LogisticRegression(max_iter=1000)  # Instantiate logistic regression as the estimator
@@ -78,10 +96,30 @@ def condenseFeatures(attributeTrain, targetTrain, numFeatures):
 
     return rfe.support_  # Return selected features
 
-# Print the confusion matrix and classification report using containing precision, recall, F1-score, and support, using true target labels and predicted labels 
+# Print the confusion matrix, classification report, accuracy score, heatmap, and matrix display
 def printResults(targetTest, prediction):
-    print("\nConfusion Matrix:\n", confusion_matrix(targetTest, prediction))
+    confusionMatrix = confusion_matrix(targetTest, prediction)  # Create confusion matrix
+
+    # Display the confusion matrix, a classification report, and the overall accuracy score of the prediction
+    print("\nConfusion Matrix:\n", confusionMatrix)
     print("\nClassification Report:\n", classification_report(targetTest, prediction))
+    print("Accuracy Score:", accuracy_score(targetTest, prediction))
+
+    # Display a heatmap using matplotlib and the sklearn toolset to display a confusion matrix
+    matrixDisplay = ConfusionMatrixDisplay(confusion_matrix = confusionMatrix)
+    fig, ax = plt.subplots(figsize=(10, 8))  # Create layout and structure figure
+    matrixDisplay.plot(ax = ax, cmap = 'Blues')  # Create Plot
+    # Plot labels
+    plt.xlabel('Predicted Labels')
+    plt.ylabel('True Labels')
+    plt.title('Voting Confusion Matrix')
+    plt.savefig('confusion_matrix.png')  # Save plot as png
+    # plt.show()  # Display plot
+
+    # Display Heatmap using Seaborn
+    # sb.heatmap(confusionMatrix, annot = False, fmt = 'd', cmap = 'Blues', cbar = False)  # Create heatmap with Seaborn
+    # plt.savefig('heatmap.png')  # Save plot as png
+    # plt.show()  # Display plot
 
 # main
 foodData = pd.read_csv('FoodTypeDataset.csv')  # Read in data form csv file
@@ -100,13 +138,13 @@ scaler.fit(attributeTrain)  # Fit the scaler to the training data to compute the
 attributeTrain = scaler.transform(attributeTrain)
 attributeTest = scaler.transform(attributeTest)
 
-# Get and Use only the top features for the data set, as in, 
-# topFeatures = condenseFeatures(attributeTrain, targetTrain, 20)
+# Get and Use only the top features for the data set, as in, the most correlated and informative features
+# topFeatures = condenseFeatures(attributeTrain, targetTrain, 10)
 
 # attributeTrain = attributeTrain[:, topFeatures]
 # attributeTest = attributeTest[:, topFeatures] 
 
-# Get predictions using KNN classifier and print the results
+# Get predictions for classifiers and print the results
 # prediction = knnClassifier(attributeTrain, attributeTest, targetTrain)
 # printResults(targetTest, prediction)
 
@@ -124,3 +162,6 @@ attributeTest = scaler.transform(attributeTest)
 
 # prediction = pipelineClassifier(attributeTrain, attributeTest, targetTrain)
 # printResults(targetTest, prediction)
+
+prediction = votingClassifier(attributeTrain, attributeTest, targetTrain)
+printResults(targetTest, prediction)
