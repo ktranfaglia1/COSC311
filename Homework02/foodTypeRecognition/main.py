@@ -2,7 +2,7 @@
 Kyle Tranfaglia
 COSC311 - Homework02
 Last updated 03/25/24
-This program reads in a food type recognition dataset, Randomly splits the dataset into two parts: 80% for training and 20% for testing,
+This program reads in a food type dataset, randomly splits the dataset into two parts: 80% for training and 20% for testing,
 and uses various classification algorithms in attempt to obtain the highest testing accuracy on the testing data. A classification Report
 is used to show the classification performance and a heatmap is used to show the classification confusion matrix.
 '''
