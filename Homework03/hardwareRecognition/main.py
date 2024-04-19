@@ -18,40 +18,35 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sb
 
+from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.ensemble import VotingClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report, accuracy_score
-from sklearn.preprocessing import StandardScaler, PolynomialFeatures
-from sklearn.feature_selection import RFE
-from sklearn.pipeline import make_pipeline
 
+from sklearn.datasets import load_digits
+from sklearn.decomposition import PCA
+'''
 # Main
 # Task 1: Regression on the Computer Hardware Dataset
-hardwareData = pd.read_csv('machine.csv')  # Read in data form csv file
+hardwareData = pd.read_csv('machine.data')  # Read in data form csv file
 
 # Complete attribute list & statistical attribute list
 all_attributes = ['vendor', 'model', 'MYCT', 'MMIN', 'MMAX', 'CACH', 'CHMIN', 'CHMAX', 'PRP']
 stat_attributes = all_attributes[2:]
  # Set up a list to store column labels (numbered columns)
-hardwareData.columns = ["column" + attribute for attribute in all_attributes] + ["ERP"]
+hardwareData.columns = [attribute for attribute in all_attributes] + ["ERP"]
 
 correlation_dic = {}
-# Get a list of each attributes correlation coefficent to ERP
+print("\nAttributes correlation coefficent to ERP")
+# Get a list and print each attributes correlation coefficent to ERP
 for i in stat_attributes:
     correlation = round(stats.correlation(hardwareData['ERP'], hardwareData[i]), ndigits=6)
     correlation_dic[i] = correlation
-    print(i + "\nCorrelation Coefficient to ERP: " + str(correlation))
+    print(i + " Correlation Coefficient to ERP: " + str(correlation))
 
 # Get sorted list of highest correlations to lowest as a key value pair, sorted by value
 sorted_correlation = dict(sorted(correlation_dic.items(), key=lambda item: item[1], reverse=True)) 
 top_attributes = list(sorted_correlation.keys())[:4]  # Attribute names of top 4 correlations
+print("Top Attributes:", top_attributes)
 
 # Extract features and target data
 attribute_data = hardwareData[top_attributes]
@@ -74,7 +69,54 @@ mse = mean_squared_error(target_test, predictions)
 rmse = np.sqrt(mse)
 
 # Print the evaluation metrics
+print("\nEvaluation Matrics")
 print("Mean Absolute Error (MAE):", mae)
 print("Mean Squared Error (MSE):", mse)
 print("Root Mean Squared Error (RMSE):", rmse)
 print(comparison)
+'''
+# Task 2: Clustering on Hand-Written Digits
+
+# Load the hand-written digits dataset
+digits = load_digits()
+digits_data = digits.data
+
+# Standardize the matrix
+digits_mean = np.mean(digits_data, axis=0)
+digits_std = np.std(digits_data, axis=0)
+digits_std[digits_std == 0] = 1e-10  # Change stds of 0 to a small value to avoid division by zero
+digits_normalized = (digits_data - digits_mean) / digits_std
+
+# Perform Principal Component Analysis (PCA) with normalized data
+pca = PCA(n_components=0.85, svd_solver='full')
+digits_data_new = pca.fit_transform(digits_normalized)
+
+# Get the covariance matrix with normalized data
+covariance_matrix = pca.get_covariance()
+
+# Dsiplay covariance matrix with normalized data
+print("PCA Analysis with normalized data")
+print("Covariance Matrix:")
+print(covariance_matrix)
+
+# Number of principal components required to keep at least 85% variance with normalized data
+print("Percentage of variance explained by each component to the total variance:\n", pca.explained_variance_ratio_)
+print(f"Total explained variance ratio: {np.sum(pca.explained_variance_ratio_):.2f}")
+print(f"Number of principal components to keep at least 85% variance: {pca.n_components_}")
+
+# Perform Principal Component Analysis (PCA) without normalized data
+pca = PCA(n_components=0.85, svd_solver='full')
+digits_data_new = pca.fit_transform(digits_data)
+
+# Get the covariance matrix without normalized data
+covariance_matrix = pca.get_covariance()
+
+# Dsiplay covariance matrix without normalized data
+print("PCA Analysis without normalized data")
+print("Covariance Matrix:")
+print(covariance_matrix)
+
+# Number of principal components required to keep at least 85% variance without normalized data
+print("Percentage of variance explained by each component to the total variance:\n", pca.explained_variance_ratio_)
+print(f"Total explained variance ratio: {np.sum(pca.explained_variance_ratio_):.2f}")
+print(f"Number of principal components to keep at least 85% variance: {pca.n_components_}")
