@@ -105,7 +105,7 @@ def printResults(targetTest, prediction):
     print("\nClassification Report:\n", classification_report(targetTest, prediction))
     print("Accuracy Score:", accuracy_score(targetTest, prediction))
 
-    # Display a heatmap using matplotlib and the sklearn toolset to display a confusion matrix
+    # Display a heatmap / confusion matrix using matplotlib and the sklearn toolset
     matrixDisplay = ConfusionMatrixDisplay(confusion_matrix = confusionMatrix)
     fig, ax = plt.subplots(figsize=(10, 8))  # Create layout and structure figure
     matrixDisplay.plot(ax = ax, cmap = 'Blues')  # Create Plot
