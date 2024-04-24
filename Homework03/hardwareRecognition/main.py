@@ -1,7 +1,7 @@
 '''
 Kyle Tranfaglia
 COSC311 - Homework03
-Last updated 03/26/24
+Last updated 04/23/24
 Task 1: Regression on the Computer Hardware Dataset
 This program reads in a computer hardware dataset, then measures the correlation between each attribute and the "ERP" to extract the four
 best attributes. With these attributes and the "ERP," the data is randomly split into 60% training data and 40% testing data. Finally, with
@@ -16,20 +16,19 @@ import stats
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sb
 
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from scipy.stats import mode
-from sklearn.cluster import KMeans
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, accuracy_score
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LinearRegression
 from sklearn.datasets import load_digits
 from sklearn.decomposition import PCA
-'''
+from sklearn.cluster import KMeans
+from scipy.stats import mode
+
 # Main
+
 # Task 1: Regression on the Computer Hardware Dataset
 hardwareData = pd.read_csv('machine.data')  # Read in data form csv file
 
@@ -68,9 +67,9 @@ predictions = lrModel.predict(attribute_test)
 comparison = pd.DataFrame({"Prediction":predictions, "Actual":target_test})
 
 # Calculate evaluation metrics: MAE, MSE, RMSE
-mae = mean_absolute_error(target_test, predictions)
-mse = mean_squared_error(target_test, predictions)
-rmse = np.sqrt(mse)
+mae = round(mean_absolute_error(target_test, predictions), ndigits=6)
+mse = round(mean_squared_error(target_test, predictions), ndigits=6)
+rmse = round(np.sqrt(mse), ndigits=6)
 
 # Print the evaluation metrics
 print("\nEvaluation Matrics")
@@ -78,7 +77,7 @@ print("Mean Absolute Error (MAE):", mae)
 print("Mean Squared Error (MSE):", mse)
 print("Root Mean Squared Error (RMSE):", rmse)
 print(comparison)
-'''
+
 # Task 2: Clustering on Hand-Written Digits
 
 # Load the hand-written digits dataset
@@ -132,15 +131,6 @@ digits_data_transformed = pca_final.fit_transform(digits_normalized)
 # Check the shape of the transformed dataset
 print("Shape of the transformed dataset:", digits_data_transformed.shape)
 
-# Perform k-means clustering
-kmeans = KMeans(n_clusters=10, random_state=7)
-kmeans.fit(digits_data_transformed)
-
-# Output the center of each cluster
-print("Center of each cluster (each cluster represents a digit):")
-for i, center in enumerate(kmeans.cluster_centers_):
-    print(f"Cluster {i}: {center:.6f}")
-
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(digits_data_transformed, digits.target, test_size=0.3, random_state=7)
 
@@ -155,23 +145,26 @@ print("Center of each cluster (each cluster represents a digit):", knn_pca._fit_
 print(f"Train score after PCA: {knn_pca.score(X_train, y_train):.6f}")
 print(f"Test score after PCA: {knn_pca.score(X_test, y_test):.6f}")
 
-# Determine the mapping between cluster labels and true labels
-cluster_labels = kmeans.labels_
-cluster_mapping = {}
-for cluster in np.unique(cluster_labels):
+# Perform k-means clustering
+kmeans = KMeans(n_clusters=10, random_state=7)
+cluster_labels = kmeans.fit_predict(digits_data_transformed)
+
+# Output the center of each cluster
+print("Center of each cluster (each cluster represents a digit):")
+for i, center in enumerate(kmeans.cluster_centers_):
+    print(f"Cluster {i}: {center}")
+
+# Determine the mapping between cluster labels and true labels 
+mapped_labels = np.zeros_like(cluster_labels)
+for cluster in range(kmeans.n_clusters):
     mask = (cluster_labels == cluster)
-    true_labels = digits.target[mask]
-    mode_label = mode(true_labels, keepdims=True)[0][0]
-    cluster_mapping[cluster] = mode_label
+    mapped_labels[mask] = mode(digits.target[mask])[0]
 
-# Calculate clustering accuracy
-predicted_labels = [cluster_mapping[cluster] for cluster in cluster_labels]
-accuracy = np.mean(predicted_labels == digits.target)
-
-print(f"Clustering Accuracy: {accuracy:.6f}")
+# Calculate and print clustering accuracy
+print(f"Clustering Accuracy: {accuracy_score(digits.target, mapped_labels):.6f}")
 
 # Generate confusion matrix
-confusionMatrix = confusion_matrix(digits.target, predicted_labels)
+confusionMatrix = confusion_matrix(digits.target, cluster_labels)
 
 # Visualize the confusion matrix using matplotlib and the sklearn toolset
 matrixDisplay = ConfusionMatrixDisplay(confusion_matrix = confusionMatrix)
