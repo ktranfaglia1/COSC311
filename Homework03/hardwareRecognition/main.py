@@ -1,17 +1,19 @@
-'''
+"""
 Kyle Tranfaglia
 COSC311 - Homework03
 Last updated 04/23/24
 Task 1: Regression on the Computer Hardware Dataset
-This program reads in a computer hardware dataset, then measures the correlation between each attribute and the "ERP" to extract the four
-best attributes. With these attributes and the "ERP," the data is randomly split into 60% training data and 40% testing data. Finally, with
-the training data, a multiple linear regression model is built and evaluated using the testing data. The results show the MAE, MSE, and RMSE.
+This program reads in a computer hardware dataset, then measures the correlation between each attribute and the "ERP" to
+extract the four best attributes. With these attributes and the "ERP," the data is randomly split into 60% training data
+and 40% testing data. Finally, with the training data, a multiple linear regression model is built and evaluated using
+the testing data. The results show the MAE, MSE, and RMSE.
 Task 2: Clustering on Hand-Written Digits
-The program reads in the UCI ML hand-written digits dataset, then conducts a PCA analysis on the dataset and finds m, which is how many 
-principal components are needed to keep at least 85% variance. Next, the dataset is transformed from 64 dimensions to m dimensions. With the 
-dimension-reduced dataset k-means clustering is conducted and the center of each cluster is displayed. Finally, the learned label is matched 
-to the true label, and then clustering accuracy is calculated and the corresponding confusion matrix is displayed.
-'''
+The program reads in the UCI ML handwritten digits dataset, then conducts a PCA analysis on the dataset and finds m,
+which is how many principal components are needed to keep at least 85% variance. Next, the dataset is transformed from
+64 dimensions to m dimensions. With the dimension-reduced dataset k-means clustering is conducted and the center of each
+cluster is displayed. Finally, the learned label is matched to the true label, and then clustering accuracy is
+calculated and the corresponding confusion matrix displays.
+"""
 import stats
 import numpy as np
 import pandas as pd
@@ -35,7 +37,8 @@ hardwareData = pd.read_csv('machine.data')  # Read in data form csv file
 # Complete attribute list & statistical attribute list
 all_attributes = ['vendor', 'model', 'MYCT', 'MMIN', 'MMAX', 'CACH', 'CHMIN', 'CHMAX', 'PRP']
 stat_attributes = all_attributes[2:]
- # Set up a list to store column labels (numbered columns)
+
+# Set up a list to store column labels
 hardwareData.columns = [attribute for attribute in all_attributes] + ["ERP"]
 
 correlation_dic = {}
@@ -47,7 +50,7 @@ for i in stat_attributes:
     print(i + " Correlation Coefficient to ERP: " + str(correlation))
 
 # Get sorted list of highest correlations to lowest as a key value pair, sorted by value
-sorted_correlation = dict(sorted(correlation_dic.items(), key=lambda item: item[1], reverse=True)) 
+sorted_correlation = dict(sorted(correlation_dic.items(), key=lambda item: item[1], reverse=True))
 top_attributes = list(sorted_correlation.keys())[:4]  # Attribute names of top 4 correlations
 print("Top Attributes:", top_attributes)
 
@@ -56,7 +59,8 @@ attribute_data = hardwareData[top_attributes]
 target_data = hardwareData['ERP']
 
 # Split the data into training and testing sets, 60% training, 40% testing
-attribute_train, attribute_test, target_train, target_test = train_test_split(attribute_data, target_data, test_size=0.4, random_state=7)
+attribute_train, attribute_test, target_train, target_test = train_test_split(attribute_data, target_data,
+                                                                              test_size=0.4, random_state=7)
 
 # Fit multiple linear regression model
 lrModel = LinearRegression()
@@ -64,7 +68,7 @@ lrModel.fit(attribute_train, target_train)
 
 # Predict target variable using testing data & generate a comparative table for target predictions and actual 
 predictions = lrModel.predict(attribute_test)
-comparison = pd.DataFrame({"Prediction":predictions, "Actual":target_test})
+comparison = pd.DataFrame({"Prediction": predictions, "Actual": target_test})
 
 # Calculate evaluation metrics: MAE, MSE, RMSE
 mae = round(mean_absolute_error(target_test, predictions), ndigits=6)
@@ -103,12 +107,13 @@ print("Covariance Matrix:")
 print(covariance_matrix)
 
 # Number of principal components required to keep at least 85% variance with normalized data
-print("Percentage of variance explained by each component to the total variance:\n", pca_normalized.explained_variance_ratio_)
+print("Percentage of variance explained by each component to the total variance:\n",
+      pca_normalized.explained_variance_ratio_)
 print(f"Total explained variance ratio: {np.sum(pca_normalized.explained_variance_ratio_):.2f}")
 print(f"Number of principal components to keep at least 85% variance: {pca_normalized.n_components_}")
 
 # Perform Principal Component Analysis (PCA) without normalized data
-pca_unnormalized  = PCA(n_components=0.85, svd_solver='full')
+pca_unnormalized = PCA(n_components=0.85, svd_solver='full')
 digits_data_new = pca_unnormalized.fit_transform(digits_data)
 
 # Get the covariance matrix without normalized data
@@ -120,7 +125,8 @@ print("Covariance Matrix:")
 print(covariance_matrix)
 
 # Number of principal components required to keep at least 85% variance without normalized data
-print("Percentage of variance explained by each component to the total variance:\n", pca_unnormalized.explained_variance_ratio_)
+print("Percentage of variance explained by each component to the total variance:\n",
+      pca_unnormalized.explained_variance_ratio_)
 print(f"Total explained variance ratio: {np.sum(pca_unnormalized.explained_variance_ratio_):.2f}")
 print(f"Number of principal components to keep at least 85% variance: {pca_unnormalized.n_components_}")
 
@@ -132,7 +138,8 @@ digits_data_transformed = pca_final.fit_transform(digits_normalized)
 print("Shape of the transformed dataset:", digits_data_transformed.shape)
 
 # Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(digits_data_transformed, digits.target, test_size=0.3, random_state=7)
+X_train, X_test, y_train, y_test = train_test_split(digits_data_transformed, digits.target,
+                                                    test_size=0.3, random_state=7)
 
 # Initialize the KNeighborsClassifier object
 knn_pca = KNeighborsClassifier(n_neighbors=4)  # Use number of samples in the training set as neighbors
@@ -167,9 +174,9 @@ print(f"Clustering Accuracy: {accuracy_score(digits.target, mapped_labels):.6f}"
 confusionMatrix = confusion_matrix(digits.target, cluster_labels)
 
 # Visualize the confusion matrix using matplotlib and the sklearn toolset
-matrixDisplay = ConfusionMatrixDisplay(confusion_matrix = confusionMatrix)
+matrixDisplay = ConfusionMatrixDisplay(confusion_matrix=confusionMatrix)
 fig, ax = plt.subplots(figsize=(10, 8))  # Create layout and structure figure
-matrixDisplay.plot(ax = ax, cmap = 'Blues')  # Create Plot
+matrixDisplay.plot(ax=ax, cmap='Blues')  # Create Plot
 # Plot labels
 plt.xlabel('Predicted Labels')
 plt.ylabel('True Labels')
