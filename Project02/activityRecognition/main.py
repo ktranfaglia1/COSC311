@@ -1,7 +1,7 @@
 """
 Kyle Tranfaglia
 COSC311 - Project02
-Last updated 05/3/24
+Last updated 05/07/24
 Task 1: Data Segmentation - segmentation of data with sliding window.
 Task 2: Feature Extraction - Each segment is used to extract multiple features to represent an activity.
 Task 3: Dataset Generation - Combination of all features and corresponding activity labels to generate sample. Features
@@ -24,7 +24,9 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import VotingClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report, accuracy_score
-from sklearn.preprocessing import StandardScaler, PolynomialFeatures
+from sklearn.preprocessing import (StandardScaler, PolynomialFeatures,  MinMaxScaler, RobustScaler,
+                                   MaxAbsScaler, PowerTransformer, QuantileTransformer, Normalizer)
+
 from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import LinearRegression
 from sklearn.decomposition import PCA
@@ -45,7 +47,7 @@ def sliding_window(df, win_len):
 
 # Determine the best window length for segmentation
 def best_window_length(act_data, all_labels):
-    window_lengths = range(128, 1025, 128)  # Define window length range to run test
+    window_lengths = range(64, 1025, 64)  # Define window length range to run test
     best_accuracy = 0
     best_window_length = 0
     for win_len in window_lengths:
@@ -54,7 +56,7 @@ def best_window_length(act_data, all_labels):
         for i, df in enumerate(act_data):
             segments = sliding_window(df, win_len)
             for segment in segments:
-                features = segment[['X', 'Y', 'Z']].values.flatten()
+                features = segment.values.flatten()
                 samples.append(features)
                 labels.append(all_labels[i])
 
@@ -66,11 +68,11 @@ def best_window_length(act_data, all_labels):
         x_train, x_test, y_train, y_test = train_test_split(samples_normalized, labels, test_size=0.2, random_state=7)
 
         # Train a classifier
-        clf = RandomForestClassifier(random_state=7)
-        clf.fit(x_train, y_train)
+        svc = SVC(kernel='linear', C=6, gamma='scale', random_state=7)
+        svc.fit(x_train, y_train)
 
         # Evaluate the classifier
-        prediction = clf.predict(x_test)
+        prediction = svc.predict(x_test)
         accuracy = accuracy_score(y_test, prediction)
 
         # Update the best window length if the current one has higher accuracy
@@ -96,58 +98,52 @@ def extract_features(segment):
 
 
 # Evaluate classifiers using self test
-def evaluate_self_test(classifiers, features, labels):
-    results = {}
-    for name, clf in classifiers.items():
-        predictions = clf.predict(features)
-        accuracy = accuracy_score(labels, predictions)
-        results[name] = accuracy
-    return results
+def evaluate_self_test(classifier, features, labels):
+    classifier.fit(features, labels)  # Fit the classifier on the entire dataset
+    predictions = classifier.predict(features)  # Make predictions
+    accuracy = accuracy_score(labels, predictions)  # Calculate accuracy
+
+    return accuracy
 
 
 # Evaluate classifiers using independent test
-def evaluate_independent_test(classifiers, features, labels):
-    results = {}
-    X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=7)
-    for name, clf in classifiers.items():
-        clf.fit(X_train, y_train)
-        predictions = clf.predict(X_test)
-        accuracy = accuracy_score(y_test, predictions)
-        results[name] = accuracy
-    return results
+def evaluate_independent_test(classifier, features_train, labels_train, features_test, labels_test):
+    classifier.fit(features_train, labels_train)  # Fit the classifier on the training data
+    predictions = classifier.predict(features_test)  # Make predictions on the test data
+    accuracy = accuracy_score(labels_test, predictions)  # Calculate accuracy
+
+    return accuracy
 
 
 # Evaluate classifiers using cross-validation test
-def evaluate_cross_validation(classifiers, features, labels):
-    results = {}
-    for name, clf in classifiers.items():
-        scores = cross_val_score(clf, features, labels, cv=10)
-        results[name] = scores.mean()
-    return results
+def evaluate_cross_validation(classifier, features, labels):
+    scores = cross_val_score(classifier, features, labels, cv=10)  # Use cross_val_score to perform cross-validation
+    average_accuracy = np.mean(scores)  # Calculate the average accuracy
+
+    return average_accuracy
 
 
 # Main
 
 # Task 1: Data Segmentation
+
 # Load CSV files into DataFrames
 files = ["COUGH.csv", "DRINK.csv", "EAT.csv", "READ.csv", "SIT.csv", "WALK.csv"]
-activity_data = [pd.read_csv(file) for file in files]
-
-# Set up a list to store column labels, then apply labels
-all_attributes = ['X', 'Y', 'Z']
-activity_data.columns = [attribute for attribute in all_attributes]
+activity_data = [pd.read_csv(file, skiprows=1) for file in files]
 
 all_labels = ["COUGH", "DRINK", "EAT", "READ", "SIT", "WALK"]  # Define the list of all activity labels
 
-# window_length = best_window_length(activity_data, all_labels)
-# segmented_data = [sliding_window(dataset, window_length) for dataset in activity_data]
+# Compute and display the best window length (one that yields highest model accuracy)
+window_length = best_window_length(activity_data, all_labels)
+print("Best Window Length Found:", window_length)
 
-window_length = 512  # Define window length
+# window_length = 512  # Define window length
 
 # Segment data into a list (of lists)
 segmented_data = [sliding_window(dataset, window_length) for dataset in activity_data]
 
 # Task 2: Feature Extraction
+
 # Store features and labels for each segment
 features_per_segment = []
 labels_per_segment = []
@@ -167,30 +163,15 @@ samples = np.array(features_per_segment)
 labels = np.array(labels_per_segment)
 
 # Normalize the features
-scaler = StandardScaler()
+scaler = MinMaxScaler()
 samples_normalized = scaler.fit_transform(samples)
-
-# Define the classifier
-rf = RandomForestClassifier(random_state=7)
-
-# Experiment 1: With feature normalization
-scores_with_normalization = cross_val_score(rf, samples_normalized, labels, cv=5)
-
-# Experiment 2: Without feature normalization
-scores_without_normalization = cross_val_score(rf, samples, labels, cv=5)
-
-# Compare and display the average performance metrics
-print("Average accuracy with feature normalization:", scores_with_normalization.mean())
-print("Average accuracy without feature normalization:", scores_without_normalization.mean())
-
-# Task 4: Model Training and Testing
 
 # Define classifiers
 classifiers = {
     "KNN": KNeighborsClassifier(n_neighbors=1),
     "Random Forest": RandomForestClassifier(n_estimators=315, criterion='gini', max_depth=14, min_samples_split=3,
                                             min_samples_leaf=3, max_features='sqrt', random_state=7),
-    "SVC": SVC(kernel='rbf', C=13, gamma='scale', random_state=7),
+    "SVC": SVC(kernel='linear', C=6, probability=True, gamma='scale', random_state=7),
     "MLP": MLPClassifier(hidden_layer_sizes=100, activation='tanh', solver='adam', alpha=1e-5, batch_size=36, tol=1e-6,
                          learning_rate_init=0.01, learning_rate='constant', max_iter=10000, random_state=7),
     "Logistic Regression": LogisticRegression(solver='liblinear', random_state=7),
@@ -201,20 +182,31 @@ classifiers = {
 voting_classifier = VotingClassifier(estimators=list(classifiers.items()), voting='soft')
 classifiers["Voting"] = voting_classifier
 
+for classifier_name, classifier_obj in classifiers.items():
+    # Experiment 1: With feature normalization
+    scores_with_normalization = cross_val_score(classifier_obj, samples_normalized, labels, cv=6)
+
+    # Experiment 2: Without feature normalization
+    scores_without_normalization = cross_val_score(classifier_obj, samples, labels, cv=6)
+
+    # Compare and display the average performance metrics
+    print("Test Classifier:", classifier_name)
+    print("Average accuracy with feature normalization:", scores_with_normalization.mean())
+    print("Average accuracy without feature normalization:", scores_without_normalization.mean())
+
+# Task 4: Model Training and Testing
+
+# Split the data into training and testing subsets for independent testing
+x_train, x_test, y_train, y_test = train_test_split(samples_normalized, labels, test_size=0.2, random_state=7)
+
 # Evaluate classifiers using different evaluation methods
-self_test_results = evaluate_self_test(classifiers, samples_normalized, labels)
-independent_test_results = evaluate_independent_test(classifiers, samples_normalized, labels)
-cross_validation_results = evaluate_cross_validation(classifiers, samples_normalized, labels)
+for classifier_name, classifier_obj in classifiers.items():
+    self_test_results = evaluate_self_test(classifier_obj, samples_normalized, labels)
+    independent_test_results = evaluate_independent_test(classifier_obj, x_train, y_train, x_test, y_test)
+    cross_validation_results = evaluate_cross_validation(classifier_obj, samples_normalized, labels)
 
-# Display results
-print("Self Test Results:")
-for name, accuracy in self_test_results.items():
-    print(f"{name}: {accuracy}")
-
-print("\nIndependent Test Results:")
-for name, accuracy in independent_test_results.items():
-    print(f"{name}: {accuracy}")
-
-print("\nCross-Validation Test Results:")
-for name, accuracy in cross_validation_results.items():
-    print(f"{name}: {accuracy}")
+    # Compare and display the average performance metrics
+    print("Test Classifier:", classifier_name)
+    print("Average accuracy with self-test:", self_test_results)
+    print("Average accuracy with independent-test:",  independent_test_results)
+    print("Average accuracy with cross-validation:", cross_validation_results)
