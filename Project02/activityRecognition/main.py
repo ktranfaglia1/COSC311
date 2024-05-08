@@ -12,26 +12,22 @@ Task 5: Experience and Potential Improvements - Reflection of project
 """
 import numpy as np
 import pandas as pd
+import seaborn as sb
 import matplotlib.pyplot as plt
 
-from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import cross_val_score
 from sklearn.svm import SVC
+from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import VotingClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.feature_selection import RFE
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report, accuracy_score
-from sklearn.preprocessing import (StandardScaler, PolynomialFeatures,  MinMaxScaler, RobustScaler,
+from sklearn.preprocessing import (StandardScaler, PolynomialFeatures, MinMaxScaler, RobustScaler,
                                    MaxAbsScaler, PowerTransformer, QuantileTransformer, Normalizer)
-
-from sklearn.pipeline import make_pipeline
-from sklearn.linear_model import LinearRegression
-from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
-from scipy.stats import mode
 
 
 # Sliding window function to segment data
@@ -100,30 +96,59 @@ def extract_features(segment):
     return features
 
 
+# Display confusion matrix using matplot (Display as heatmap)
+def display_confusion_matrix(cm):
+    # Display a heatmap / confusion matrix using matplotlib and the sklearn toolset
+    matrix_display = ConfusionMatrixDisplay(confusion_matrix=cm)
+    fig, ax = plt.subplots(figsize=(10, 8))  # Create layout and structure figure
+    matrix_display.plot(ax=ax, cmap='Blues')  # Create Plot
+    # Plot labels
+    plt.xlabel('Predicted Labels')
+    plt.ylabel('True Labels')
+    plt.title('Voting Confusion Matrix')
+    plt.savefig('confusion_matrix.png')  # Save plot as png
+    # plt.show()  # Display plot
+
+
 # Evaluate classifiers using self test
-def evaluate_self_test(classifier, features, labels):
+def evaluate_self_test(classifier, features, labels, display=0):
     classifier.fit(features, labels)  # Fit the classifier on the entire dataset
     predictions = classifier.predict(features)  # Make predictions
-    accuracy = accuracy_score(labels, predictions)  # Calculate accuracy
-
-    return accuracy
+    if display == 0:
+        return accuracy_score(labels, predictions)  # Calculate accuracy
+    elif display == 1:
+        return classification_report(labels, predictions)  # Create classification report
+    else:
+        cm = confusion_matrix(labels, predictions)  # Create confusion matrix
+        display_confusion_matrix(cm)
 
 
 # Evaluate classifiers using independent test
-def evaluate_independent_test(classifier, features_train, labels_train, features_test, labels_test):
+def evaluate_independent_test(classifier, features_train, labels_train, features_test, labels_test, display=0):
     classifier.fit(features_train, labels_train)  # Fit the classifier on the training data
     predictions = classifier.predict(features_test)  # Make predictions on the test data
-    accuracy = accuracy_score(labels_test, predictions)  # Calculate accuracy
+    result = accuracy_score(labels_test, predictions)  # Calculate accuracy
 
-    return accuracy
+    return result
 
 
 # Evaluate classifiers using cross-validation test
-def evaluate_cross_validation(classifier, features, labels):
+def evaluate_cross_validation(classifier, features, labels, display=0):
     scores = cross_val_score(classifier, features, labels, cv=10)  # Use cross_val_score to perform cross-validation
-    average_accuracy = np.mean(scores)  # Calculate the average accuracy
+    result = np.mean(scores)  # Calculate the average accuracy
 
-    return average_accuracy
+    return result
+
+
+# Condense features by eliminating them based on importance
+def condenseFeatures(attributeTrain, targetTrain, numFeatures):
+    estimator = LogisticRegression(max_iter=1000)  # Instantiate logistic regression as the estimator
+
+    # Instantiate RFE with logistic regression estimator and recursively select top _ features, then fit RFE to the data
+    rfe = RFE(estimator, n_features_to_select=numFeatures)
+    rfe.fit(attributeTrain, targetTrain)
+
+    return rfe.support_  # Return selected features
 
 
 # Main
@@ -136,7 +161,7 @@ activity_data = [pd.read_csv(file, skiprows=1) for file in files]
 
 all_labels = ["COUGH", "DRINK", "EAT", "READ", "SIT", "WALK"]  # Define the list of all activity labels
 
-# Compute and display the best window length (one that yields highest model accuracy)
+# Compute and display the best window length (one that yields the highest model accuracy)
 window_length = best_window_length(activity_data, all_labels)
 print("Best Window Length Found:", window_length, "\n")
 
@@ -144,6 +169,10 @@ print("Best Window Length Found:", window_length, "\n")
 
 # Segment data into a list (of lists)
 segmented_data = [sliding_window(dataset, window_length) for dataset in activity_data]
+
+print("Activity Sample Sizes")
+for i, segment in enumerate(segmented_data):
+    print(all_labels[i] + ":", len(segment))
 
 # Task 2: Feature Extraction
 
@@ -182,10 +211,10 @@ classifiers = {
 }
 
 # Add VotingClassifier separately in order to use all classifiers in dict for voting
-voting_classifier = VotingClassifier(estimators=list(classifiers.items()), voting='soft')
-classifiers["Voting"] = voting_classifier
+# voting_classifier = VotingClassifier(estimators=list(classifiers.items()), voting='soft')
+# classifiers["Voting"] = voting_classifier
 
-print("Normalization vs No Normalization Testing")
+print("\nNormalization vs No Normalization Testing")
 
 # Evaluate classifiers with and without normalization to compare accuracy results
 for classifier_name, classifier_obj in classifiers.items():
@@ -207,15 +236,27 @@ x_train, x_test, y_train, y_test = train_test_split(samples_normalized, labels, 
 
 print("\nModel Testing using self-test, independent-test, and cross-validation")
 
+classifiers_results = {}
 # Evaluate classifiers using different evaluation methods
 for classifier_name, classifier_obj in classifiers.items():
     # Call functions to test the models using a specific evaluation method
     self_test_results = evaluate_self_test(classifier_obj, samples_normalized, labels)
     independent_test_results = evaluate_independent_test(classifier_obj, x_train, y_train, x_test, y_test)
     cross_validation_results = evaluate_cross_validation(classifier_obj, samples_normalized, labels)
+    result_average = (self_test_results + independent_test_results + cross_validation_results) / 3
+    classifiers_results[classifier_name] = result_average
 
     # Compare and display the average performance metrics
     print("Test Classifier:", classifier_name)
     print("Average accuracy with self-test:", self_test_results)
-    print("Average accuracy with independent-test:",  independent_test_results)
+    print("Average accuracy with independent-test:", independent_test_results)
     print("Average accuracy with cross-validation:", cross_validation_results)
+    print("Average accuracy of all tests", result_average)
+
+sorted_classifier_results = dict(sorted(classifiers_results.items(), key=lambda item: item[1], reverse=True))
+
+print("\nClassifier Rankings")
+for i, (key, value) in enumerate(sorted_classifier_results.items()):
+    print(str(i + 1) + ". ", key + ":", value)
+
+best_classifier = next(iter(sorted_classifier_results))
