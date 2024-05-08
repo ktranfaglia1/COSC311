@@ -50,15 +50,18 @@ def best_window_length(act_data, all_labels):
     window_lengths = range(64, 1025, 64)  # Define window length range to run test
     best_accuracy = 0
     best_window_length = 0
+    # Iterate over each window length in range
     for win_len in window_lengths:
         samples = []
         labels = []
+        # Iterate over each dataset
         for i, df in enumerate(act_data):
-            segments = sliding_window(df, win_len)
+            segments = sliding_window(df, win_len)  # Segment the data using sliding window
+            # Extract features from each segment
             for segment in segments:
-                features = segment.values.flatten()
-                samples.append(features)
-                labels.append(all_labels[i])
+                features = segment.values.flatten()  # Flatten feature (segment) values to 1D list
+                samples.append(features)  # Append to sample lis
+                labels.append(all_labels[i])  # Append corresponding label to a list to track true label
 
         # Normalize the features
         scaler = StandardScaler()
@@ -135,7 +138,7 @@ all_labels = ["COUGH", "DRINK", "EAT", "READ", "SIT", "WALK"]  # Define the list
 
 # Compute and display the best window length (one that yields highest model accuracy)
 window_length = best_window_length(activity_data, all_labels)
-print("Best Window Length Found:", window_length)
+print("Best Window Length Found:", window_length, "\n")
 
 # window_length = 512  # Define window length
 
@@ -182,6 +185,9 @@ classifiers = {
 voting_classifier = VotingClassifier(estimators=list(classifiers.items()), voting='soft')
 classifiers["Voting"] = voting_classifier
 
+print("Normalization vs No Normalization Testing")
+
+# Evaluate classifiers with and without normalization to compare accuracy results
 for classifier_name, classifier_obj in classifiers.items():
     # Experiment 1: With feature normalization
     scores_with_normalization = cross_val_score(classifier_obj, samples_normalized, labels, cv=6)
@@ -199,8 +205,11 @@ for classifier_name, classifier_obj in classifiers.items():
 # Split the data into training and testing subsets for independent testing
 x_train, x_test, y_train, y_test = train_test_split(samples_normalized, labels, test_size=0.2, random_state=7)
 
+print("\nModel Testing using self-test, independent-test, and cross-validation")
+
 # Evaluate classifiers using different evaluation methods
 for classifier_name, classifier_obj in classifiers.items():
+    # Call functions to test the models using a specific evaluation method
     self_test_results = evaluate_self_test(classifier_obj, samples_normalized, labels)
     independent_test_results = evaluate_independent_test(classifier_obj, x_train, y_train, x_test, y_test)
     cross_validation_results = evaluate_cross_validation(classifier_obj, samples_normalized, labels)
